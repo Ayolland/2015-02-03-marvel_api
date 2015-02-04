@@ -5,12 +5,16 @@ require 'active_support/all'
 def launch
   puts "BARE BONES MARVEL TERMINAL"
   while true 
-    display_description(search)
+    array = search
+    if array == []
+      puts "Sorry, no entries found."
+      puts ""
+    elsif display_description(array)
+    end
   end
 end
 
 def display_description(array)
-  system "clear"
   counter = 0
   puts "Top " + array.length.to_s + " Results from the Marvel Database:"
   h_line
@@ -24,8 +28,6 @@ def display_description(array)
   input = gets.to_i
   (input != 0) ? more_info(input,array) : quit
 end
-
-string = "The Mad Titan Thanos, a melancholy, brooding individual, consumed with the concept of death, sought out personal power and increased strength, endowing himself with cybernetic implants until he became more powerful than any of his brethren."
 
 def h_line
   puts "-" * 50
@@ -46,15 +48,40 @@ def quit
 end
 
 def more_info(selection,array)
-  launch_client
-  system "clear"
-  puts array[selection - 1]["name"]
+  client = launch_client
+  puts "Name: " + array[selection - 1]["name"]
   h_line
+  puts "Description:"
   paragraph(array[selection - 1]["description"])
   h_line
-  puts "press Enter to return to search"
-  gets
-  
+  puts "Searching for relevant events..."
+  puts "Be patient..."
+  stories = client.character_events(array[selection - 1]["id"])
+  h_line
+  if stories == []
+    puts "Sorry, no events found." 
+  else
+    puts "Enter 2 to display EVENTS"
+  end
+  puts "Enter 1 to return to RESULTS."
+  puts "Enter 0 to return to SEARCH."
+  input = gets.to_i
+  if input == 1
+   display_description(array)
+  elsif input == 2
+    display_events(stories)
+  end
+end
+
+def display_events(array)
+  array.each do |entry|
+    #binding.pry
+    puts "Event: " + entry.title #apparently these are hashies...
+    paragraph(entry.description)
+    puts ""
+    puts "(press Enter to continue or 1 to finish)"
+    gets.to_i == 1 ? break : entry #entry is meaningless here
+  end
 end
 
 def launch_client
@@ -75,7 +102,6 @@ def search
   puts "Accessing the Marvel database and saving the top results"
   puts "Be patient..."
   hot_mess_array = client.characters(nameStartsWith: search_string, orderBy: 'modified')
-  puts "Got it! (Press Enter)"
   hot_mess_array
  end
 
