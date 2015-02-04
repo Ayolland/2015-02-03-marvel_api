@@ -6,6 +6,11 @@ def launch
   puts "BARE BONES MARVEL TERMINAL"
   while true 
     array = search
+    trash = []
+    array.each do |entry|
+      trash.push(entry) if entry["description"] == ""
+    end
+    array = array - trash
     if array == []
       puts "Sorry, no entries found."
       puts ""
@@ -22,6 +27,7 @@ def display_description(array)
     counter +=1
     puts counter.to_s + ": " + entry["name"]
   end
+  #binding.pry
   h_line
   puts "Enter a number you would like more info on."
   puts "0 or a non-number will quit"
@@ -30,7 +36,7 @@ def display_description(array)
 end
 
 def h_line
-  puts "-" * 50
+  puts "-" * 80
   nil
 end
 
@@ -49,6 +55,7 @@ end
 
 def more_info(selection,array)
   client = launch_client
+  puts ""
   puts "Name: " + array[selection - 1]["name"]
   h_line
   puts "Description:"
@@ -82,6 +89,7 @@ def display_events(array)
     puts "(press Enter to continue or 1 to finish)"
     gets.to_i == 1 ? break : entry #entry is meaningless here
   end
+  h_line
 end
 
 def launch_client
