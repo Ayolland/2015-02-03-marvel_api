@@ -13,16 +13,7 @@ def launch
   puts "BARE BONES MARVEL TERMINAL"
   while true #the only way out of this loop is breaking it at the terminal or caling #quit
     array = search
-    trash = []
-    array.each do |entry|
-      trash.push(entry) if entry["description"] == "" #puts any search result with no description into trash
-    end
-    array = array - trash #removes any entries found in trash from array
-    if array == [] # technically this condition is now useless since we trashed these entries.
-      puts "Sorry, no entries found."
-      puts ""
-    elsif display_description(array)
-    end
+    display_description(array)
   end
 end
 
@@ -33,19 +24,35 @@ end
 # nil
 
 def display_description(array)
-  counter = 0
-  puts "Top " + array.length.to_s + " Results from the Marvel Database:"
-  h_line
+  trash = []
   array.each do |entry|
-    counter +=1
-    puts counter.to_s + ": " + entry["name"]
+    trash.push(entry) if entry.description == "" #puts any search result with no description into trash
+  end
+  array = array - trash
+  #binding.pry
+  if array == []
+    puts "Sorry, no detailed entries found."
+    puts ""
+  else
+    counter = 0
+    puts array.length.to_s + " results from the Marvel database:"
+    h_line
+    array.each do |entry|
+      counter +=1
+      puts counter.to_s + ": " + entry["name"]
+    end
+  end
+  h_line
+  puts "Additional entries with no description:"
+  trash.each do |entry|
+    puts " - " + entry["name"]
   end
   #binding.pry
   h_line
-  puts "Enter a number you would like more info on."
-  puts "0 or a non-number will quit"
+  puts "Enter a number you would like more info on." if array != []
+  puts "0 or a non-number will return to SEARCH."
   input = gets.to_i
-  (input != 0) ? more_info(input,array) : quit
+  (input != 0) ? more_info(input,array) : search
 end
 
 # Public: h_line
@@ -170,7 +177,7 @@ end
 def search
   client = launch_client # loading up a new API client object
   puts "Enter a character or group name to search the Marvel Database for..."
-  puts "(0 will quit)"
+  puts "(Enter 0 to QUIT)"
   search_string = gets.chomp
   quit if search_string == "0"
   puts "Accessing the Marvel database and saving the top results"
